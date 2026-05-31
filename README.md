@@ -115,4 +115,3 @@ This infrastructure rigidly adheres to the mathematical formulations outlined in
 5.  **Gatheral, J. (2006).** *The Volatility Surface: A Practitioner's Guide.* John Wiley & Sons.
 
 ---
-*Engineered for the absolute frontier of quantitative finance.*
