@@ -6,8 +6,6 @@
 ![Quant](https://img.shields.io/badge/Domain-Quantitative_Finance-gold.svg)
 ![Algorithm](https://img.shields.io/badge/Algorithm-O(N)_Laplace_Transform-ff69b4.svg)
 
-**Repository:** [https://github.com/photon2563/Multivariate-Kelly-Criterion-and-Expected-Value-Optimization.git](https://github.com/photon2563/Multivariate-Kelly-Criterion-and-Expected-Value-Optimization.git)
-
 ---
 
 ## 1. Executive Summary & Architectural Paradigm
