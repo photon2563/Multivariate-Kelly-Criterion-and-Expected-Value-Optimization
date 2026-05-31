@@ -98,7 +98,9 @@ def fetch_spot_and_expirations(symbol):
 @st.cache_data(ttl=300)
 def fetch_option_chain(symbol, expiry):
     tkr = yf.Ticker(symbol, session=get_yf_session())
-    return tkr.option_chain(expiry)
+    chain = tkr.option_chain(expiry)
+    # Return raw Pandas DataFrames directly to guarantee pickle serialization
+    return chain.calls, chain.puts
 
 spot_price, expirations, error_msg = fetch_spot_and_expirations(ticker_symbol)
 
@@ -120,10 +122,9 @@ else:
     st.sidebar.text(f"Time to Maturity: {time_to_maturity:.4f} years")
 
     # Fetch Option Chain
-    option_chain = fetch_option_chain(ticker_symbol, selected_expiry)
+    calls, puts = fetch_option_chain(ticker_symbol, selected_expiry)
     
     # Focus on Calls for simplicity in this demo, and filter out near-zero implied vols or illiquid strikes
-    calls = option_chain.calls
     calls = calls[(calls['impliedVolatility'] > 0.01) & (calls['volume'] > 0)]
     
     # Filter strikes around the money (e.g., +/- 20%)
