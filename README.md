@@ -36,7 +36,7 @@ $$f^* = \frac{\mu}{\mu + \frac{\sigma^2}{1+\mu}}$$
 This discrete-time Kelly formula is asymptotically approximated by the continuous-time Merton rule for small edges, elegantly converging traditional portfolio theory with discrete probability theory.
 
 ### Fractional Kelly and Drawdown Mitigation
-Directly applying the optimal point $f^*$ ("Full Kelly") is mathematically optimal but practically devastating due to parameter uncertainty and extreme variance. The geometry of the Kelly curve is dangerously asymmetric. To optimize risk-adjusted returns and stabilize geometric compounding, this architecture deploys a **Fractional Kelly** approach. By utilizing a programmatic scalar multiplier (e.g., $0.35f^*$), the system captures the vast majority of the optimal expected growth rate while drastically reducing maximum peak-to-trough drawdowns—functioning analogously to a volatility-targeting mechanism in multi-strategy hedge funds.
+Directly applying the optimal point **f<sup>*</sup>** ("Full Kelly") is mathematically optimal but practically devastating due to parameter uncertainty and extreme variance. The geometry of the Kelly curve is inherently asymmetric. To optimize risk-adjusted returns and stabilize geometric compounding, this architecture employs a **Fractional Kelly** approach. By applying a programmatic scaling factor (e.g., **0.35 × f<sup>*</sup>**), the system captures most of the optimal expected growth rate while significantly reducing peak-to-trough drawdowns, functioning similarly to a volatility-targeting framework used in sophisticated multi-strategy hedge funds.
 
 ---
 
