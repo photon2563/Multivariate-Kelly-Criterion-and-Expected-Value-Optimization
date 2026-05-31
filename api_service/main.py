@@ -10,9 +10,12 @@ import uvicorn
 
 from api_service.schemas.market_data import SABRCalibrationRequest, SABRCalibrationResponse
 from quant_engine.models.sabr import SABRCalibrator
+from api_service.routers.kelly_router import router as kelly_router
 
 app = FastAPI(title="Advanced Quant Infrastructure API", 
               description="High-performance derivatives pricing and calibration microservices")
+
+app.include_router(kelly_router, prefix="/api/v1")
 
 # Enable CORS for local testing if needed
 app.add_middleware(
