@@ -112,7 +112,16 @@ if spot_price is None:
 else:
     st.sidebar.metric("Current Spot Price", f"${spot_price:.2f}")
     
-    selected_expiry = st.sidebar.selectbox("Select Expiration Date", expirations)
+    today = datetime.now()
+    default_index = 0
+    # Find an expiration date roughly 30-90 days out to show meaningful time value
+    for i, exp in enumerate(expirations):
+        exp_date = datetime.strptime(exp, '%Y-%m-%d')
+        if (exp_date - today).days > 30:
+            default_index = i
+            break
+            
+    selected_expiry = st.sidebar.selectbox("Select Expiration Date", expirations, index=default_index)
     
     # Calculate time to maturity in years (approximate based on trading days or calendar days)
     expiry_date = datetime.strptime(selected_expiry, '%Y-%m-%d')
@@ -200,32 +209,30 @@ else:
         mjd_mu_j = col_m2.slider("Mean Log-Jump (μ_j)", min_value=-0.5, max_value=0.5, value=-0.1, step=0.05)
         mjd_delta = col_m3.slider("Jump Volatility (δ)", min_value=0.01, max_value=0.5, value=0.15, step=0.01)
         
-        if st.button("Price via Carr-Madan Fast Fourier Transform"):
-            from quant_engine.models.merton_jd import MertonJumpDiffusion, CarrMadanFFT
-            with st.spinner("Executing O(N log N) FFT Integration..."):
-                # Approximate typical BS vol from the ATM options
-                atm_vol = np.median(market_vols) if len(market_vols) > 0 else 0.2
-                
-                mjd_model = MertonJumpDiffusion(
-                    s0=spot_price, r=0.05, q=0.0, sigma=atm_vol, 
-                    lam=mjd_lambda, mu_j=mjd_mu_j, delta=mjd_delta
-                )
-                fft_pricer = CarrMadanFFT(mjd_model, n_power=12)
-                fft_strikes, fft_prices = fft_pricer.price_european_calls(time_to_maturity)
-                
-                # Filter to relevant strikes around ATM
-                valid_indices = (fft_strikes >= lower_bound) & (fft_strikes <= upper_bound)
-                plot_strikes = fft_strikes[valid_indices]
-                plot_prices = fft_prices[valid_indices]
-                
-            st.success("FFT Pricing Complete!")
-            fig2 = go.Figure()
-            fig2.add_trace(go.Scatter(x=plot_strikes, y=plot_prices, mode='lines', name='MJD Call Prices', line=dict(color='#00ff88')))
-            fig2.add_vline(x=spot_price, line_dash="dash", line_color="white", annotation_text="Spot Price")
-            fig2.update_layout(
-                title="European Call Option Chain (Merton Jump-Diffusion via FFT)",
-                xaxis_title="Strike Price",
-                yaxis_title="Option Premium ($)",
-                template="plotly_dark"
-            )
-            st.plotly_chart(fig2, use_container_width=True)
+        from quant_engine.models.merton_jd import MertonJumpDiffusion, CarrMadanFFT
+        
+        # Approximate typical BS vol from the ATM options
+        atm_vol = np.median(market_vols) if len(market_vols) > 0 else 0.2
+        
+        mjd_model = MertonJumpDiffusion(
+            s0=spot_price, r=0.05, q=0.0, sigma=atm_vol, 
+            lam=mjd_lambda, mu_j=mjd_mu_j, delta=mjd_delta
+        )
+        fft_pricer = CarrMadanFFT(mjd_model, n_power=12)
+        fft_strikes, fft_prices = fft_pricer.price_european_calls(time_to_maturity)
+        
+        # Filter to relevant strikes around ATM
+        valid_indices = (fft_strikes >= lower_bound) & (fft_strikes <= upper_bound)
+        plot_strikes = fft_strikes[valid_indices]
+        plot_prices = fft_prices[valid_indices]
+        
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(x=plot_strikes, y=plot_prices, mode='lines', name='MJD Call Prices', line=dict(color='#00ff88')))
+        fig2.add_vline(x=spot_price, line_dash="dash", line_color="white", annotation_text="Spot Price")
+        fig2.update_layout(
+            title="European Call Option Chain (Merton Jump-Diffusion via FFT)",
+            xaxis_title="Strike Price",
+            yaxis_title="Option Premium ($)",
+            template="plotly_dark"
+        )
+        st.plotly_chart(fig2, use_container_width=True)
