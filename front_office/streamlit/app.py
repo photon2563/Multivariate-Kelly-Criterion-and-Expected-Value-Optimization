@@ -74,29 +74,39 @@ st.markdown("This elite dashboard demonstrates production-grade SABR model calib
 st.sidebar.header("Market Data Parameters")
 ticker_symbol = st.sidebar.text_input("Ticker Symbol", value="SPY")
 
+import requests
+
+def get_yf_session():
+    session = requests.Session()
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+    })
+    return session
+
 @st.cache_data(ttl=300)
 def fetch_spot_and_expirations(symbol):
-    tkr = yf.Ticker(symbol)
     try:
+        tkr = yf.Ticker(symbol, session=get_yf_session())
         expirations = tkr.options
         if not expirations:
-            return None, None
+            return None, None, "No options found for this ticker."
         spot_price = tkr.history(period="1d")['Close'].iloc[-1]
-        return spot_price, list(expirations)
-    except Exception:
-        return None, None
+        return spot_price, list(expirations), None
+    except Exception as e:
+        return None, None, str(e)
 
 @st.cache_data(ttl=300)
 def fetch_option_chain(symbol, expiry):
-    tkr = yf.Ticker(symbol)
-    # Returns an OptionChain namedtuple containing DataFrames (calls, puts)
-    # Namedtuples with dataframes are pickleable by st.cache_data
+    tkr = yf.Ticker(symbol, session=get_yf_session())
     return tkr.option_chain(expiry)
 
-spot_price, expirations = fetch_spot_and_expirations(ticker_symbol)
+spot_price, expirations, error_msg = fetch_spot_and_expirations(ticker_symbol)
 
 if spot_price is None:
     st.error(f"No options data found for ticker {ticker_symbol}.")
+    if error_msg:
+        st.warning(f"yfinance API Details: {error_msg}")
+        st.info("Note: Yahoo Finance occasionally blocks cloud IP addresses (like Streamlit Community Cloud). If this persists, try running the app locally.")
 else:
     st.sidebar.metric("Current Spot Price", f"${spot_price:.2f}")
     
