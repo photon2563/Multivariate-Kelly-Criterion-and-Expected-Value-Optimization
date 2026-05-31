@@ -67,10 +67,10 @@ Implemented in `quant_engine/math/monte_carlo.py`.
 *   No analytical model reaches production without stochastic verification. We developed a highly parallelized Euler-Maruyama path generator.
 *   **Variance Reduction**: Integrates **Antithetic Variates** (negative correlated paths) and **Black-Scholes Control Variates** to mathematically crush statistical standard errors, allowing for precise benchmarking of the FFT outputs.
 
-### Phase 6: Enterprise Deployment & Front-Office UI
+### Phase 6: Enterprise Deployment & Full-Stack Web Architecture
 To serve the quantitative math to the actual trading desk:
-*   **FastAPI Backend**: A highly concurrent REST API (`api_service/main.py`) protected by `Pydantic` schemas, ready for Docker/Kubernetes deployment.
-*   **Elite Streamlit Dashboard**: (`front_office/streamlit/app.py`). A highly customized, glassmorphism-styled UI that fetches live market option chains via `yfinance`, dynamically cleans the liquidity profile, and instantly pipes the data through the JIT SABR calibrator. It utilizes `Plotly` to render the 3D continuous volatility smile interactively.
+*   **FastAPI Backend**: A highly concurrent REST API (`api_service/main.py`) protected by `Pydantic` schemas, ready for Docker/Kubernetes deployment. It securely handles all heavy mathematical processing and intercepts external `yfinance` requests.
+*   **Custom HTML/JS/CSS Frontend**: (`front_office/web/`). A highly customized, purely vanilla web interface built with a stunning glassmorphism design system. It is served directly by the FastAPI backend as static assets and uses `Plotly.js` to render 3D continuous volatility smiles and FFT interactive curves in real-time.
 
 ---
 
@@ -79,8 +79,8 @@ To serve the quantitative math to the actual trading desk:
 ### 4.1 Environment Setup
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd advanced_quant_infrastructure
+git clone https://github.com/photon2563/Advanced-Options-Pricing-and-Calibration.git
+cd Advanced-Options-Pricing-and-Calibration
 
 # Create a virtual environment
 python3 -m venv .venv
@@ -90,19 +90,18 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4.2 Running the Elite Front-Office Dashboard
-To experience the JIT-compiled optimization engines against live market data:
+### 4.2 Running the Full-Stack Application
+To experience the JIT-compiled optimization engines against live market data, simply boot the FastAPI server which natively serves the custom web UI:
 ```bash
-streamlit run front_office/streamlit/app.py
+python -m uvicorn api_service.main:app --reload
 ```
-Navigate to `http://localhost:8501`. 
-*   **Tab 1**: Input a ticker (e.g., SPY) to witness real-time SABR calibration.
-*   **Tab 2**: Interact with the Merton Jump-Diffusion FFT pricing engine.
+Navigate to `http://localhost:8000/`. 
+*   Input a ticker (e.g., SPY) to witness real-time SABR calibration and interactive Carr-Madan FFT pricing.
 
-### 4.3 Running the FastAPI Microservice
-For backend integration (e.g., Excel VBA):
+### 4.3 Running the FastAPI Microservice for Integrations
+For backend-only integration (e.g., Excel VBA, automated trading algorithms) without the UI reload:
 ```bash
-uvicorn api_service.main:app --host 0.0.0.0 --port 8000 --workers 4
+python -m uvicorn api_service.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ---
