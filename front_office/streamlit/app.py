@@ -75,20 +75,31 @@ st.sidebar.header("Market Data Parameters")
 ticker_symbol = st.sidebar.text_input("Ticker Symbol", value="SPY")
 
 @st.cache_data(ttl=300)
-def fetch_ticker_data(symbol):
+def fetch_spot_and_expirations(symbol):
     tkr = yf.Ticker(symbol)
-    if not tkr.options:
+    try:
+        expirations = tkr.options
+        if not expirations:
+            return None, None
+        spot_price = tkr.history(period="1d")['Close'].iloc[-1]
+        return spot_price, list(expirations)
+    except Exception:
         return None, None
-    return tkr, tkr.history(period="1d")['Close'].iloc[-1]
 
-ticker, spot_price = fetch_ticker_data(ticker_symbol)
+@st.cache_data(ttl=300)
+def fetch_option_chain(symbol, expiry):
+    tkr = yf.Ticker(symbol)
+    # Returns an OptionChain namedtuple containing DataFrames (calls, puts)
+    # Namedtuples with dataframes are pickleable by st.cache_data
+    return tkr.option_chain(expiry)
 
-if ticker is None:
+spot_price, expirations = fetch_spot_and_expirations(ticker_symbol)
+
+if spot_price is None:
     st.error(f"No options data found for ticker {ticker_symbol}.")
 else:
     st.sidebar.metric("Current Spot Price", f"${spot_price:.2f}")
     
-    expirations = ticker.options
     selected_expiry = st.sidebar.selectbox("Select Expiration Date", expirations)
     
     # Calculate time to maturity in years (approximate based on trading days or calendar days)
@@ -99,7 +110,7 @@ else:
     st.sidebar.text(f"Time to Maturity: {time_to_maturity:.4f} years")
 
     # Fetch Option Chain
-    option_chain = ticker.option_chain(selected_expiry)
+    option_chain = fetch_option_chain(ticker_symbol, selected_expiry)
     
     # Focus on Calls for simplicity in this demo, and filter out near-zero implied vols or illiquid strikes
     calls = option_chain.calls
