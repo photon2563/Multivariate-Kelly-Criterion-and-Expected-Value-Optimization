@@ -7,6 +7,7 @@
 ![Quant](https://img.shields.io/badge/Domain-Quantitative_Finance-gold.svg)
 
 ## 1. Executive Summary & Architectural Paradigm
+The foundational Black-Scholes equation assumes that the underlying asset follows a continuous geometric Brownian motion, defined by a constant expected rate of return (drift) and a strictly constant diffusion coefficient (volatility). 1  The model further assumes continuous trading, infinitely divisible assets, frictionless markets with zero transaction costs, and deterministic interest rates. 1  Under this restrictive paradigm, the terminal distribution of the underlying asset is perfectly log-normal, and the implied volatility—the singular unobservable parameter within the Black-Scholes analytical formula—should theoretically remain perfectly flat and identical regardless of the option's specific strike price (moneyness) or time to expiration.
 
 This repository contains an elite, production-grade quantitative infrastructure tailored for high-frequency derivatives pricing and multi-curve volatility surface calibration. Engineered specifically for the rigorous standards of tier-1 proprietary trading firms and quantitative hedge funds, this system systematically addresses the mathematical breakdown of the classical Black-Scholes-Merton model.
 
