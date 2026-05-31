@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Quant Infrastructure: SABR Volatility Calibration</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar Navigation & Controls -->
+        <aside class="glass-sidebar">
+            <h2 class="sidebar-title">Market Parameters</h2>
+            <div class="control-group">
+                <label for="tickerInput">Ticker Symbol</label>
+                <div class="input-wrapper">
+                    <input type="text" id="tickerInput" value="SPY" />
+                    <button id="fetchTickerBtn" class="primary-btn">Fetch Data</button>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <span class="metric-label">Current Spot Price</span>
+                <span class="metric-value" id="spotPriceDisplay">$0.00</span>
+            </div>
+
+            <div class="control-group" id="expiryGroup" style="display: none;">
+                <label for="expirySelect">Select Expiration Date</label>
+                <select id="expirySelect"></select>
+            </div>
+
+            <div class="metric-card" id="ttmCard" style="display: none;">
+                <span class="metric-label">Time to Maturity</span>
+                <span class="metric-value" id="ttmDisplay">0.0000 yrs</span>
+            </div>
+            
+            <div class="sidebar-footer">
+                <p>Advanced Quantitative Infrastructure</p>
+                <p class="status-indicator" id="apiStatus">● API Standby</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="app-header">
+                <h1>SABR Volatility Surface Calibration</h1>
+                <p>This elite dashboard demonstrates production-grade SABR model calibration using ultra-low latency JIT-compiled optimizers and real-time options data.</p>
+            </header>
+            
+            <div id="loader" class="glass-panel loader-container" style="display: none;">
+                <div class="spinner"></div>
+                <p id="loaderText">Fetching High-Frequency Market Data...</p>
+            </div>
+
+            <div id="calibrationResults" class="results-grid" style="display: none;">
+                <div class="glass-panel metric-box">
+                    <h4>Alpha (α)</h4>
+                    <p id="valAlpha">0.0000</p>
+                </div>
+                <div class="glass-panel metric-box">
+                    <h4>Beta (β)</h4>
+                    <p id="valBeta">1.0000</p>
+                </div>
+                <div class="glass-panel metric-box">
+                    <h4>Rho (ρ)</h4>
+                    <p id="valRho">0.0000</p>
+                </div>
+                <div class="glass-panel metric-box">
+                    <h4>Vol of Vol (ν)</h4>
+                    <p id="valNu">0.0000</p>
+                </div>
+                <div class="glass-panel metric-box">
+                    <h4>Shift</h4>
+                    <p id="valShift">0.0000</p>
+                </div>
+                <div class="glass-panel metric-box highlight">
+                    <h4>Mean Squared Error</h4>
+                    <p id="valMse">0.000000</p>
+                </div>
+            </div>
+
+            <div class="glass-panel chart-container" id="chartContainer" style="display: none;">
+                <div id="volatilityChart"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
